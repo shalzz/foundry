@@ -94,6 +94,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Set Swap Space to avoid failing on Windows
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
