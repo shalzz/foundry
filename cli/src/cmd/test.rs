@@ -11,7 +11,10 @@ use ethers::{
     contract::EthLogDecode,
     solc::{ArtifactOutput, Project},
 };
-use forge::{executor::opts::EvmOpts, MultiContractRunnerBuilder, TestFilter};
+use forge::{
+    executor::{builder::Fork, opts::EvmOpts},
+    MultiContractRunnerBuilder, TestFilter,
+};
 use foundry_config::{figment::Figment, Config};
 use std::collections::BTreeMap;
 
@@ -148,8 +151,10 @@ impl Cmd for TestArgs {
             .evm_spec(evm_spec)
             .sender(evm_opts.sender);
 
+        // enable forking mode if the url is set
         if let Some(ref url) = evm_opts.fork_url {
-            builder = builder.fork_url(url);
+            builder =
+                builder.fork(Fork { url: url.to_string(), pin_block: evm_opts.fork_block_number });
         }
 
         test(
