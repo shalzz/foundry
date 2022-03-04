@@ -21,6 +21,7 @@ pub mod test_helpers {
 
     use super::{
         executor::{
+            builder::Backend,
             opts::{Env, EvmOpts},
             Executor, ExecutorBuilder,
         },
@@ -32,7 +33,7 @@ pub mod test_helpers {
         types::{Address, U256},
     };
     use regex::Regex;
-    use revm::db::{DatabaseRef, EmptyDB};
+    use revm::db::DatabaseRef;
 
     pub static COMPILED: Lazy<AggregatedCompilerOutput> = Lazy::new(|| {
         let paths =
@@ -47,7 +48,7 @@ pub mod test_helpers {
         ..Default::default()
     });
 
-    pub fn test_executor() -> Executor<EmptyDB> {
+    pub fn test_executor() -> Executor<Backend> {
         ExecutorBuilder::new().with_cheatcodes(false).with_config((*EVM_OPTS).env.evm_env()).build()
     }
 

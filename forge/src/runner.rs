@@ -457,17 +457,19 @@ impl<'a, DB: DatabaseRef + Send + Sync> ContractRunner<'a, DB> {
 
 #[cfg(test)]
 mod tests {
-    use crate::test_helpers::{test_executor, Filter, COMPILED, EVM_OPTS};
+    use crate::{
+        executor::builder::Backend,
+        test_helpers::{test_executor, Filter, COMPILED, EVM_OPTS},
+    };
 
     use super::*;
     use proptest::test_runner::Config as FuzzConfig;
-    use revm::db::EmptyDB;
 
     pub fn runner<'a>(
         abi: &'a Abi,
         code: ethers::prelude::Bytes,
         libs: &'a mut Vec<ethers::prelude::Bytes>,
-    ) -> ContractRunner<'a, EmptyDB> {
+    ) -> ContractRunner<'a, Backend> {
         ContractRunner::new(
             test_executor(),
             abi,
