@@ -122,7 +122,6 @@ impl MultiContractRunnerBuilder {
             identified_contracts: Default::default(),
             evm_opts,
             evm_spec: self.evm_spec.unwrap_or(SpecId::LONDON),
-            fork: self.fork,
             sender: self.sender,
             fuzzer: self.fuzzer,
             execution_info,
@@ -138,12 +137,6 @@ impl MultiContractRunnerBuilder {
     #[must_use]
     pub fn initial_balance(mut self, initial_balance: U256) -> Self {
         self.initial_balance = initial_balance;
-        self
-    }
-
-    #[must_use]
-    pub fn fork(mut self, fork: Fork) -> Self {
-        self.fork = Some(fork);
         self
     }
 
@@ -174,8 +167,6 @@ pub struct MultiContractRunner {
     pub evm_opts: EvmOpts,
     /// The EVM spec
     pub evm_spec: SpecId,
-    /// The forking configuration
-    pub fork: Option<Fork>,
     /// All contract execution info, (functions, events, errors)
     pub execution_info: (BTreeMap<[u8; 4], Function>, BTreeMap<H256, Event>, Abi),
     /// The fuzzer which will be used to run parametric tests (w/ non-0 solidity args)
@@ -189,6 +180,7 @@ impl MultiContractRunner {
         &mut self,
         filter: &(impl TestFilter + Send + Sync),
     ) -> Result<BTreeMap<String, BTreeMap<String, TestResult>>> {
+        let env = self.evm_opts.evm_env();
         let results = self
             .contracts
             .par_iter()
@@ -197,11 +189,15 @@ impl MultiContractRunner {
             .map(|(name, (abi, deploy_code, libs))| {
                 let mut builder = ExecutorBuilder::new()
                     .with_cheatcodes(self.evm_opts.ffi)
-                    .with_config(self.evm_opts.env.evm_env())
+                    .with_config(env.clone())
                     .with_spec(self.evm_spec);
 
-                if let Some(ref fork) = self.fork {
-                    builder = builder.with_fork(fork.clone());
+                if let Some(ref url) = self.evm_opts.fork_url {
+                    let fork = Fork {
+                        url: url.clone(),
+                        pin_block: self.evm_opts.fork_block_number,
+                    };
+                    builder = builder.with_fork(fork);
                 }
 
                 let executor = builder.build();
