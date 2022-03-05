@@ -6,7 +6,7 @@ members = [
     "cli",
     "cli/test-utils",
     "config",
-    "fmt",
+    # "fmt",
 ]
 
 # Binary size optimizations

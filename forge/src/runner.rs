@@ -463,12 +463,11 @@ impl<'a, DB: DatabaseRef + Send + Sync> ContractRunner<'a, DB> {
 mod tests {
     use crate::{
         executor::builder::Backend,
-        test_helpers::{test_executor, Filter, COMPILED, EVM_OPTS},
+        test_helpers::{test_executor, filter::Filter, COMPILED, EVM_OPTS},
     };
 
     use super::*;
     use proptest::test_runner::Config as FuzzConfig;
-
     pub fn runner<'a>(
         abi: &'a Abi,
         code: ethers::prelude::Bytes,
@@ -497,7 +496,7 @@ mod tests {
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
         let results =
-            runner.run_tests(&Filter::new("testGreeting", ".*"), Some(fuzzer), None).unwrap();
+            runner.run_tests(&Filter::new("testGreeting", ".*", ".*"), Some(fuzzer), None).unwrap();
         assert!(results["testGreeting()"].success);
         assert!(results["testGreeting(string)"].success);
         assert!(results["testGreeting(string,string)"].success);
@@ -514,7 +513,7 @@ mod tests {
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
         let results =
-            runner.run_tests(&Filter::new("testFuzz.*", ".*"), Some(fuzzer), None).unwrap();
+            runner.run_tests(&Filter::new("testFuzz.*", ".*", ".*"), Some(fuzzer), None).unwrap();
         for (_, res) in results {
             assert!(!res.success);
             assert!(res.counterexample.is_some());
@@ -532,7 +531,7 @@ mod tests {
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
         let res =
-            runner.run_tests(&Filter::new("testStringFuzz.*", ".*"), Some(fuzzer), None).unwrap();
+            runner.run_tests(&Filter::new("testStringFuzz.*", ".*", ".*"), Some(fuzzer), None).unwrap();
         assert_eq!(res.len(), 1);
         assert!(res["testStringFuzz(string)"].success);
         assert!(res["testStringFuzz(string)"].counterexample.is_none());
@@ -549,7 +548,7 @@ mod tests {
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
         let res =
-            runner.run_tests(&Filter::new("testShrinking.*", ".*"), Some(fuzzer), None).unwrap();
+            runner.run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None).unwrap();
         assert_eq!(res.len(), 1);
 
         let res = res["testShrinking(uint256,uint256)"].clone();
@@ -569,7 +568,7 @@ mod tests {
         cfg.max_shrink_iters = 5;
         let fuzzer = TestRunner::new(cfg);
         let res =
-            runner.run_tests(&Filter::new("testShrinking.*", ".*"), Some(fuzzer), None).unwrap();
+            runner.run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None).unwrap();
         assert_eq!(res.len(), 1);
 
         let res = res["testShrinking(uint256,uint256)"].clone();
