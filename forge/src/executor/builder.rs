@@ -5,18 +5,18 @@ use revm::{
 };
 
 use super::{
+    inspector::InspectorStackConfig,
     fork::{SharedBackend, SharedMemCache},
     Executor,
 };
 
 #[derive(Default)]
 pub struct ExecutorBuilder {
-    /// Whether or not cheatcodes are enabled
-    cheatcodes: bool,
-    /// Whether or not the FFI cheatcode is enabled
-    ffi: bool,
     /// The execution environment configuration.
-    config: Env,
+    env: Env,
+    /// The configuration used to build an [InspectorStack].
+    inspector_config: InspectorStackConfig,
+    /// Whether the node should run in forking mode.
     fork: Option<Fork>,
 }
 
@@ -88,27 +88,27 @@ impl DatabaseRef for Backend {
 impl ExecutorBuilder {
     #[must_use]
     pub fn new() -> Self {
-        Self { cheatcodes: false, ffi: false, config: Env::default(), fork: None }
+        Default::default()
     }
 
     /// Enables cheatcodes on the executor.
     #[must_use]
     pub fn with_cheatcodes(mut self, ffi: bool) -> Self {
-        self.cheatcodes = true;
-        self.ffi = ffi;
+        self.inspector_config.cheatcodes = true;
+        self.inspector_config.ffi = ffi;
         self
     }
 
     #[must_use]
     pub fn with_spec(mut self, spec: SpecId) -> Self {
-        self.config.cfg.spec_id = spec;
+        self.env.cfg.spec_id = spec;
         self
     }
 
     /// Configure the execution environment (gas limit, chain spec, ...)
     #[must_use]
-    pub fn with_config(mut self, config: Env) -> Self {
-        self.config = config;
+    pub fn with_config(mut self, env: Env) -> Self {
+        self.env = env;
         self
     }
 
@@ -122,10 +122,9 @@ impl ExecutorBuilder {
     /// Builds the executor as configured.
     pub fn build(self) -> Executor<Backend> {
         let db = Backend::new(self.fork);
-        Executor::new(db, self.config)
+        Executor::new(db, self.env, self.inspector_config)
     }
 
     // TODO: add with_traces
     // TODO: add with_debug(ger?)
-    // TODO: add forked
 }
