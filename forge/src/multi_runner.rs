@@ -9,7 +9,7 @@ use revm::db::DatabaseRef;
 use ethers::{
     abi::{Abi, Event, Function},
     prelude::{artifacts::CompactContractBytecode, ArtifactOutput},
-    solc::{ArtifactId, Artifact, Project},
+    solc::{Artifact, ArtifactId, Project},
     types::{Address, Bytes, H256, U256},
 };
 
@@ -209,10 +209,8 @@ impl MultiContractRunner {
                     .with_spec(self.evm_spec);
 
                 if let Some(ref url) = self.evm_opts.fork_url {
-                    let fork = Fork {
-                        url: url.clone(),
-                        pin_block: self.evm_opts.fork_block_number,
-                    };
+                    let fork =
+                        Fork { url: url.clone(), pin_block: self.evm_opts.fork_block_number };
                     builder = builder.with_fork(fork);
                 }
 

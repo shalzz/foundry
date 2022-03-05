@@ -463,7 +463,7 @@ impl<'a, DB: DatabaseRef + Send + Sync> ContractRunner<'a, DB> {
 mod tests {
     use crate::{
         executor::builder::Backend,
-        test_helpers::{test_executor, filter::Filter, COMPILED, EVM_OPTS},
+        test_helpers::{filter::Filter, test_executor, COMPILED, EVM_OPTS},
     };
 
     use super::*;
@@ -530,8 +530,9 @@ mod tests {
         let mut cfg = FuzzConfig::default();
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
-        let res =
-            runner.run_tests(&Filter::new("testStringFuzz.*", ".*", ".*"), Some(fuzzer), None).unwrap();
+        let res = runner
+            .run_tests(&Filter::new("testStringFuzz.*", ".*", ".*"), Some(fuzzer), None)
+            .unwrap();
         assert_eq!(res.len(), 1);
         assert!(res["testStringFuzz(string)"].success);
         assert!(res["testStringFuzz(string)"].counterexample.is_none());
@@ -547,8 +548,9 @@ mod tests {
         let mut cfg = FuzzConfig::default();
         cfg.failure_persistence = None;
         let fuzzer = TestRunner::new(cfg);
-        let res =
-            runner.run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None).unwrap();
+        let res = runner
+            .run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None)
+            .unwrap();
         assert_eq!(res.len(), 1);
 
         let res = res["testShrinking(uint256,uint256)"].clone();
@@ -567,8 +569,9 @@ mod tests {
         // we reduce the shrinking iters and observe a larger result
         cfg.max_shrink_iters = 5;
         let fuzzer = TestRunner::new(cfg);
-        let res =
-            runner.run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None).unwrap();
+        let res = runner
+            .run_tests(&Filter::new("testShrinking.*", ".*", ".*"), Some(fuzzer), None)
+            .unwrap();
         assert_eq!(res.len(), 1);
 
         let res = res["testShrinking(uint256,uint256)"].clone();

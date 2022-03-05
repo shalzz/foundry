@@ -5,8 +5,8 @@ use revm::{
 };
 
 use super::{
-    inspector::InspectorStackConfig,
     fork::{SharedBackend, SharedMemCache},
+    inspector::InspectorStackConfig,
     Executor,
 };
 

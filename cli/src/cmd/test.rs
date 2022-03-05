@@ -363,8 +363,8 @@ fn test<A: ArtifactOutput + 'static>(
                     //         (&result.traces, &result.identified_contracts)
                     //     {
                     //         if !result.success && verbosity == 3 || verbosity > 3 {
-                    //             // add a new line if any logs were printed & to separate them from
-                    //             // the traces to be printed
+                    //             // add a new line if any logs were printed & to separate them
+                    // from             // the traces to be printed
                     //             if !result.logs.is_empty() {
                     //                 println!();
                     //             }
