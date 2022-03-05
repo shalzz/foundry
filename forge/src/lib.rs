@@ -15,6 +15,10 @@ pub trait TestFilter {
     fn matches_contract(&self, contract_name: &str) -> bool;
 }
 
+use ethers::types::Address;
+use once_cell::sync::Lazy;
+static CALLER: Lazy<Address> = Lazy::new(Address::random);
+
 #[cfg(test)]
 pub mod test_helpers {
     use crate::executor::fuzz::FuzzedExecutor;
@@ -30,7 +34,7 @@ pub mod test_helpers {
     use ethers::{
         prelude::Lazy,
         solc::{AggregatedCompilerOutput, Project, ProjectPathsConfig},
-        types::{Address, U256},
+        types::U256,
     };
     use regex::Regex;
     use revm::db::DatabaseRef;
@@ -57,7 +61,7 @@ pub mod test_helpers {
     ) -> FuzzedExecutor<'a, DB> {
         let cfg = proptest::test_runner::Config { failure_persistence: None, ..Default::default() };
 
-        FuzzedExecutor::new(executor, proptest::test_runner::TestRunner::new(cfg), Address::zero())
+        FuzzedExecutor::new(executor, proptest::test_runner::TestRunner::new(cfg), *CALLER)
     }
 
     pub struct Filter {

@@ -24,6 +24,7 @@ pub mod fuzz;
 /// Executor EVM spec identifiers
 pub use revm::SpecId;
 
+use crate::CALLER;
 use bytes::Bytes;
 use ethers::{
     abi::{Abi, Detokenize, RawLog, Tokenize},
@@ -126,6 +127,11 @@ where
         self.db.insert_cache(address, account);
     }
 
+    /// Gets the balance of an account
+    pub fn get_balance(&self, address: Address) -> U256 {
+        self.db.basic(address).balance
+    }
+
     /// Set the nonce of an account.
     pub fn set_nonce(&mut self, address: Address, nonce: u64) {
         let mut account = self.db.basic(address);
@@ -139,14 +145,8 @@ where
         &mut self,
         address: Address,
     ) -> std::result::Result<(Return, Vec<RawLog>), EvmError> {
-        let CallResult { status, logs, .. } = self.call_committing::<(), _, _>(
-            Address::zero(),
-            address,
-            "setUp()",
-            (),
-            0.into(),
-            None,
-        )?;
+        let CallResult { status, logs, .. } =
+            self.call_committing::<(), _, _>(*CALLER, address, "setUp()", (), 0.into(), None)?;
         Ok((status, logs))
     }
 
